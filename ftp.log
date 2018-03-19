@@ -238,3 +238,5 @@ INFO 2018-03-19 09:46:24,865 - 230 Login successful. Username & password correct
 INFO 2018-03-19 09:46:26,184 - 226 Transfer complete (971 KB)
 INFO 2018-03-19 09:46:26,477 - 230 Login successful. Username & password correct; FTP unlocked.
 INFO 2018-03-19 09:46:27,692 - 226 Transfer complete (971 KB)
+INFO 2018-03-19 09:47:26,124 - Disconnected from RabbitMQ at localhost:5672 (320): CONNECTION_FORCED - broker forced connection closure with reason 'shutdown'
+ERROR 2018-03-19 09:47:26,125 - Connection close detected; result=BlockingConnection__OnClosedArgs(connection=<SelectConnection CLOSED socket=None params=<ConnectionParameters host=localhost port=5672 virtual_host=/ ssl=False>>, reason_code=320, reason_text="CONNECTION_FORCED - broker forced connection closure with reason 'shutdown'")
