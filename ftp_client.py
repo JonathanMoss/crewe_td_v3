@@ -2,11 +2,21 @@
 import pika
 import json
 from ftplib import FTP
+import ftplib
 import io
-from ast import literal_eval
+import logging
+import datetime
 
 CONFIG_FILE = 'conf/config.json'
 WORKING_SVG = 'crewe_td_wrk.svg'
+LOG_FORMAT = '%(levelname)s %(asctime)s - %(message)s'
+
+logging.basicConfig(filename='ftp.log',
+                    level=logging.INFO,
+                    format=LOG_FORMAT,
+                    filemode='w')
+
+logger = logging.getLogger()
 
 
 class FtpClient:
@@ -51,14 +61,21 @@ class FtpClient:
                                                                   connection_attempts=10,
                                                                   credentials=self._credentials)
 
-
     def _message_callback(self, ch, method, properties, body):
 
-        with FTP(self._ftp_host, timeout=10) as ftp:
-            ftp.login(user=self._ftp_user_name, passwd=self._ftp_password)
-            bio = io.BytesIO(body)
-            ftp.storbinary('STOR ' + WORKING_SVG, bio, 1024)
-        ch.basic_ack(delivery_tag=method.delivery_tag)
+        try:
+            now = datetime.datetime.now()
+            if now.second % 2 == 0:
+                with FTP(self._ftp_host, timeout=10) as ftp:
+                    logger.info(ftp.login(user=self._ftp_user_name, passwd=self._ftp_password))
+                    bio = io.BytesIO(body)
+                    logger.info('{} ({} KB)'.format(ftp.storbinary('STOR ' + WORKING_SVG,
+                                                                      bio,
+                                                                      1024), int(ftp.size(WORKING_SVG) / 1024)))
+        except ftplib.all_errors as e:
+            logger.info(e)
+        finally:
+            ch.basic_ack(delivery_tag=method.delivery_tag)
 
     def _create_incoming_broker_connection(self):
 
@@ -68,6 +85,7 @@ class FtpClient:
         self._channel.basic_qos(prefetch_count=1)
         self._channel.basic_consume(self._message_callback, queue=self._incoming_broker_queue)
         self._channel.start_consuming()
+
 
 if __name__ == '__main__':
     ftp_client = FtpClient()
