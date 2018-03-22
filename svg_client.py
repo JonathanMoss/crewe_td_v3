@@ -229,6 +229,35 @@ class SVGHandler:
                         style = e.get('style')
                         style = re.sub(r'fill:#[0-9A-Za-z]*', 'fill:#ffffff', style)
                         e.set('style', style)
+                        # e.set('onmouseover', 'this.style.stroke = "#ff0000"; this.style["stroke-width"] = 5;')
+                        # e.set('onmouseout', 'this.style.stroke = "#000000"; this.style["stroke-width"] = 1;')
+                        id = str(e.attrib['id'])
+                        result = re.sub(r'[^0-9]+', '', id)
+                        for x in routing_table:
+                            for trk in routing_table[x]:
+                                if trk == result:
+                                    e.set('onmouseover',
+                                          "var fill = this.style.fill; this.style.fill = 'red'; "
+                                          "this.onmouseout = function() {this.style.fill = fill;}")
+                                    e.set('onclick',
+                                          "var track_id = this.id;"
+                                          "var stripped_id = track_id.replace( /^\D+/g, '');"
+                                          "var stroke_width = this.style.strokeWidth;"
+                                          "if (stroke_width > 0) {"
+                                          "this.style.strokeWidth = '0';"
+                                          "var ind = global_tracks.indexOf(stripped_id);"
+                                          "if (ind != -1){"
+                                          "global_tracks.splice(ind, 1);}"
+                                          "} else {"
+                                          "this.style.stroke = 'black';"
+                                          "this.style.strokeWidth = '0.559';"
+                                          "if (global_tracks.indexOf(stripped_id) == -1){"
+                                          "global_tracks.push(stripped_id);}"
+                                          "console.log(global_tracks);"
+                                          "}")
+                                    break
+
+
 
     def set_route(self, route, set_route=True):
 
